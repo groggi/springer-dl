@@ -17,7 +17,6 @@
 import argparse
 import tempfile
 import os
-import sys #TODO: REMOVE
 import subprocess
 import urllib.parse
 
@@ -66,9 +65,16 @@ def download_book_content(url, session):
 	print("Downloading chapters... ")
 	chapter_items = soup.find_all("li", class_="chapter-item")
 	for chapter in chapter_items:
-		chapter_pdf_path = chapter.find("a", class_="pdf-link")["href"]
-		chapter_pdf_url = urllib.parse.urljoin(response.url, chapter_pdf_path)
-		temp_content_files.append(__download_pdf(chapter_pdf_url, session))
+		# get chapter name
+		chapter_name = chapter.find("p", class_="title").text.strip()
+
+		if chapter.find("p", class_="no-access-message"):
+			print("\tCan't download the chapter '%s' (access denied)" % (chapter_name))
+		else:
+			# download the chapter
+			chapter_pdf_path = chapter.find("a", class_="pdf-link")["href"]
+			chapter_pdf_url = urllib.parse.urljoin(response.url, chapter_pdf_path)
+			temp_content_files.append(__download_pdf(chapter_pdf_url, session))
 	print("done.")
 	
 	# ... get back matter
@@ -97,7 +103,7 @@ def main():
 		help="Path to save the PDF at")
 	args = argparser.parse_args()
 	
-	headers = {"User-Agent": "why do I need this script? I just need it as a single PDF!"}
+	headers = {"User-Agent": "Why don't you provide a single PDF to download? Why do I have to write a script to solve this simple problem?"}
 	session = requests.Session()
 	session.headers.update(headers)
 	
