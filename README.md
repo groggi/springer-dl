@@ -1,3 +1,3 @@
 springer-dl
 ================
-Please do not use it now. It's a prototype for now. One day it should make downloading Books from [http://rd.springer.com](http://rd.springer.com) easier.
+Working draft of a new Python script that helps to download different content (journals, books, ...) from [http://rd.springer.com](http://rd.springer.com). For now it handles only books and has some major problems. **I do not recommend to use it - it's still a work in progress!**
