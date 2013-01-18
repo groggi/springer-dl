@@ -7,6 +7,7 @@ import tempfile
 import urllib.parse
 import sys
 import subprocess
+import time
 from bs4 import BeautifulSoup
 
 __author__ = "Gregor Wegberg"
@@ -212,12 +213,18 @@ def extract_content(session, url, outputfile):
 
     # merge everything
     #TODO: own function, discover different tools and so on
-    print("starting merge...")
     merge_command = ["pdftk"]
     merge_command.extend(temp_files)
     merge_command.extend(["cat", "output", outputfile])
-    subprocess.Popen(merge_command, shell=False).wait()
-    print("...done! Generated file: %s" % outputfile)
+    pdf_process = subprocess.Popen(merge_command, shell=False)
+
+    chars = '|/-\\-'
+    while pdf_process.poll() is None:
+        for c in chars:
+            sys.stdout.write('\rmerging files into single PDF file... %s' % c)
+            sys.stdout.flush()
+            time.sleep(1)
+    print("\nmerged files and saved at %s" % outputfile)
 
     # clean up temporary files
     print("deleting temporary files:")
