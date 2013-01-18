@@ -32,25 +32,29 @@ def query_yes(str):
     else:
         return True
 
+def update_cli_progress(text, current, total):
+    progress_length = 30
+
+    progress_percent = float(current) / total
+    progress_hashes = '#' * int(round(progress_percent * progress_length))
+    progress_spaces = ' ' * (progress_length - len(progress_hashes))
+    sys.stdout.write("\r%s: [%s] %s%% (%i of %i)" % (text,
+                                                     progress_hashes + progress_spaces,
+                                                     int(round(progress_percent * 100)),
+                                                     current,
+                                                     total))
+    sys.stdout.flush()
+
 def download_content(session, content_urls):
     local_files = []
 
-    progress_length = 30
     content_count = len(content_urls)
     progress_file = 1
 
     print("preparing for download")
-
     for file_url in content_urls:
         # update progress bar
-        progress_percent = float(progress_file) / content_count
-        progress_hashes = '#' * int(round(progress_percent * progress_length))
-        progress_spaces = ' ' * (progress_length - len(progress_hashes))
-        sys.stdout.write("\rDownload content: [%s] %s%% (%i of %i)" % (progress_hashes + progress_spaces,
-                                                                       int(round(progress_percent * 100)),
-                                                                       progress_file,
-                                                                       content_count))
-        sys.stdout.flush()
+        update_cli_progress("Downloading content", progress_file, content_count)
 
         # get content
         needs_convert = False
@@ -240,7 +244,7 @@ def main():
     # prepare session to browse the web
     session = requests.session()
     session.headers.update({
-    'User-Agent': "Why don't you provide everything in a single PDF file to download? At the end you get paid for it!"})
+        'User-Agent': "Why don't you provide everything in a single PDF file to download? At the end you get paid for it!"})
 
     extract_content(session, args.url, args.output)
 
