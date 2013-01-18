@@ -20,16 +20,26 @@ class UnexpectedSpringerDocumentTypeException(Exception):
 class UnexpectedSpringerContentFileTypeException(Exception):
     pass
 
+class UserCanceledException(Exception):
+    pass
+
+def query_yes(str):
+    print("%s [Y/n]" % str)
+    answer = input().lower()
+
+    if answer.startswith('n'):
+        return False
+    else:
+        return True
 
 def download_content(session, content_urls):
     local_files = []
-    convert_out = []
 
     progress_length = 30
     content_count = len(content_urls)
     progress_file = 1
 
-    print("\npreparing for download")
+    print("preparing for download")
 
     for file_url in content_urls:
         # update progress bar
@@ -43,16 +53,15 @@ def download_content(session, content_urls):
         sys.stdout.flush()
 
         # get content
+        needs_convert = False
         response = session.get(file_url)
-        try:
-            response.raise_for_status()
-        except Exception as e:
-            print(file_url, e) #TODO: ugly, do real exception handling - everywhere!
 
+        # check for error
+        if (response.status_code != requests.codes.ok) and (not query_yes("Could not get '%s'. Download further?" % file_url)):
+            raise UserCanceledException("\nUser canceled further download")
 
         # guess file ending
         content_header = response.headers["Content-Type"]
-        needs_convert = False
         if 'pdf' in content_header:
             file_ending = '.pdf'
         elif 'tiff' in content_header:
@@ -207,8 +216,9 @@ def extract_content(session, url, outputfile):
     print("...done! Generated file: %s" % outputfile)
 
     # clean up temporary files
+    print("deleting temporary files:")
     for file in temp_files:
-        print("deleting temporary file '%s'" % file)
+        print("\t%s" % file)
         os.remove(file)
 
 
