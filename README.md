@@ -1,4 +1,4 @@
- # springer-dl #
+# springer-dl #
 Script that should help to download all kinds of content from [http://rd.springer.com](rd.springer.com). This will sometime include books, journals, etc.
 
 ## Current state ##
